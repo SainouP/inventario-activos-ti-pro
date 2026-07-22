@@ -3,6 +3,11 @@
 Sistema web empresarial para controlar activos tecnológicos, usuarios,
 asignaciones, mantenimientos, garantías y auditoría.
 
+## 🚀 Live Demo
+
+- Aplicación: https://inventario-activos-ti-pro.onrender.com
+- Swagger API: https://inventario-activos-ti-pro.onrender.com/docs
+
 ## Diferencias por rol
 
 ### Administrador
