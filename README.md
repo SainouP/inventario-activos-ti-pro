@@ -107,7 +107,7 @@ Python, FastAPI, SQLModel, SQLite, Jinja2, Chart.js, Pytest, Docker y GitHub Act
 
 ## Ficha de activo - Técnico
 
-![Ficha Técnico 1](screenshots/ficha_activo1_Tecnico.png)
+![Ficha Técnico 1](screenshots/ficha_activo_Tecnico.png)
 
 ![Ficha Técnico 2](screenshots/ficha_activo2_Tecnico.png)
 
