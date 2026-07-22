@@ -1,0 +1,51 @@
+<!doctype html><html lang="es"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Inventario TI Pro</title><link rel="stylesheet" href="{{ url_for('static', path='/styles.css') }}">
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script></head><body class="role-{{ user.role.name|lower }}">
+<header class="hero"><div><p class="eyebrow">INVENTARIO EMPRESARIAL</p><h1>
+{% if user.role.value == "Empleado" %}Mis activos asignados{% elif user.role.value == "Técnico" %}Panel operativo TI{% else %}Panel administrativo{% endif %}
+</h1><p>{{ user.full_name }} · {{ user.role.value }}</p></div>
+<nav>{% if user.role.value == "Administrador" %}<a href="/users">Usuarios</a>{% endif %}
+{% if user.role.value != "Empleado" %}<a href="/web/export/csv">Exportar CSV</a>{% endif %}
+<a href="/logout">Cerrar sesión</a></nav></header>
+<main class="container">
+{% if user.role.value == "Empleado" %}
+<section class="employee-welcome"><h2>Hola, {{ user.full_name }}</h2><p>Aquí puedes consultar únicamente los equipos asignados a tu cuenta.</p></section>
+<section class="stats employee-stats"><article><span>Mis equipos</span><strong>{{ stats.total }}</strong></article>
+<article><span>Garantías próximas</span><strong>{{ stats.warranty }}</strong></article>
+<article><span>Valor referencial</span><strong>S/ {{ "%.0f"|format(stats.value) }}</strong></article></section>
+<section class="asset-cards">
+{% for asset in assets %}<article class="asset-card"><div class="asset-icon">{{ "💻" if asset.asset_type.value == "Laptop" else "🖥️" if asset.asset_type.value in ["Monitor","PC de escritorio"] else "🖨️" if asset.asset_type.value == "Impresora" else "📦" }}</div>
+<div><p class="eyebrow">{{ asset.asset_code }}</p><h3>{{ asset.name }}</h3><p>{{ asset.brand }} {{ asset.model }}</p>
+<div class="card-meta"><span>{{ asset.status.value }}</span><span>{{ asset.location }}</span><span>Garantía: {{ asset.warranty_end or "Sin registro" }}</span></div>
+<a class="detail-link" href="/assets/{{ asset.id }}">Ver ficha del equipo</a></div></article>
+{% else %}<div class="panel empty">No tienes activos asignados.</div>{% endfor %}</section>
+{% else %}
+<section class="stats"><article><span>Total</span><strong>{{ stats.total }}</strong></article>
+<article><span>Disponibles</span><strong>{{ stats.available }}</strong></article>
+<article><span>Asignados</span><strong>{{ stats.assigned }}</strong></article>
+<article><span>Mantenimiento</span><strong>{{ stats.maintenance }}</strong></article>
+<article><span>Garantías ≤60 días</span><strong>{{ stats.warranty }}</strong></article>
+{% if user.role.value == "Administrador" %}<article><span>Valor inventario</span><strong>S/ {{ "%.0f"|format(stats.value) }}</strong></article>
+{% else %}<article><span>Mantenimientos pendientes</span><strong>{{ stats.pending_maintenance }}</strong></article>{% endif %}</section>
+<section class="charts-grid"><article class="panel chart-panel"><h2>Activos por estado</h2><canvas id="statusChart"></canvas></article>
+<article class="panel chart-panel"><h2>Distribución por tipo</h2><canvas id="typeChart"></canvas></article></section>
+<section class="panel"><h2>Registrar activo</h2><form class="grid-form" action="/web/assets" method="post">
+<label>Código patrimonial<input name="asset_code" required placeholder="ACT-005"></label><label>Número de serie<input name="serial_number" required></label>
+<label>Nombre<input name="name" required></label><label>Tipo<select name="asset_type">{% for t in asset_types %}<option value="{{ t.value }}">{{ t.value }}</option>{% endfor %}</select></label>
+<label>Marca<input name="brand" required></label><label>Modelo<input name="model" required></label><label>Sede<input name="location" required></label>
+<label>Área<input name="department" required></label><label>Fecha de compra<input name="purchase_date" type="date"></label>
+<label>Fin de garantía<input name="warranty_end" type="date"></label><label>Costo<input name="purchase_cost" type="number" min="0" step="0.01"></label>
+<label class="wide">Notas<textarea name="notes"></textarea></label><button>Registrar activo</button></form></section>
+<section class="panel"><div class="panel-title"><h2>Inventario</h2><input id="search" placeholder="Buscar por código, serie, marca, sede..."></div>
+<div class="table-wrap"><table id="assets-table"><thead><tr><th>Código</th><th>Activo</th><th>Tipo</th><th>Sede</th><th>Área</th><th>Estado</th><th>Garantía</th><th></th></tr></thead><tbody>
+{% for asset in assets %}<tr><td><strong>{{ asset.asset_code }}</strong><small>{{ asset.serial_number }}</small></td>
+<td>{{ asset.name }}<small>{{ asset.brand }} {{ asset.model }}</small></td><td>{{ asset.asset_type.value }}</td><td>{{ asset.location }}</td>
+<td>{{ asset.department }}</td><td><span class="badge {{ asset.status.name|lower }}">{{ asset.status.value }}</span></td>
+<td>{{ asset.warranty_end or "Sin registro" }}</td><td><a class="detail-link" href="/assets/{{ asset.id }}">Gestionar</a></td></tr>
+{% else %}<tr><td colspan="8" class="empty">No hay activos.</td></tr>{% endfor %}</tbody></table></div></section>
+{% if user.role.value == "Administrador" %}<section class="panel"><h2>Últimos movimientos</h2>
+{% for h in histories %}<article class="timeline"><strong>{{ h.action }}</strong><small>{{ h.performed_by }} · {{ h.created_at.strftime('%d/%m/%Y %H:%M') }}</small></article>
+{% else %}<p class="muted">Sin movimientos.</p>{% endfor %}</section>{% endif %}
+{% endif %}</main>
+{% if user.role.value != "Empleado" %}<script>window.statusData={{ status_chart|tojson }};window.typeData={{ type_chart|tojson }};</script>{% endif %}
+<script src="{{ url_for('static', path='/app.js') }}"></script></body></html>

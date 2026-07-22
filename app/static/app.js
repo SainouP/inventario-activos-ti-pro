@@ -1,0 +1,4 @@
+const search=document.getElementById("search"),table=document.getElementById("assets-table");
+if(search&&table){search.addEventListener("input",()=>{const term=search.value.toLowerCase().trim();table.querySelectorAll("tbody tr").forEach(row=>row.style.display=row.textContent.toLowerCase().includes(term)?"":"none");});}
+if(window.statusData&&document.getElementById("statusChart")){new Chart(document.getElementById("statusChart"),{type:"bar",data:{labels:window.statusData.labels,datasets:[{label:"Cantidad",data:window.statusData.values}]},options:{responsive:true,maintainAspectRatio:false}});}
+if(window.typeData&&document.getElementById("typeChart")){new Chart(document.getElementById("typeChart"),{type:"doughnut",data:{labels:window.typeData.labels,datasets:[{data:window.typeData.values}]},options:{responsive:true,maintainAspectRatio:false}});}

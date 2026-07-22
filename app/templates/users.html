@@ -1,0 +1,11 @@
+<!doctype html><html lang="es"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Usuarios</title><link rel="stylesheet" href="{{ url_for('static', path='/styles.css') }}"></head><body class="role-admin">
+<header class="hero compact"><div><p class="eyebrow">ADMINISTRACIÓN</p><h1>Gestión de usuarios</h1></div><nav><a href="/">Dashboard</a><a href="/logout">Salir</a></nav></header>
+<main class="container"><section class="panel"><h2>Crear usuario</h2><form class="grid-form" action="/web/users" method="post">
+<label>Nombre<input name="full_name" required></label><label>Correo<input name="email" type="email" required></label>
+<label>Contraseña<input name="password" type="password" minlength="6" required></label><label>Rol<select name="role">{% for r in roles %}<option value="{{ r.value }}">{{ r.value }}</option>{% endfor %}</select></label>
+<label>Área<input name="department" required></label><label>Sede<input name="location" required></label><button>Crear usuario</button></form></section>
+<section class="panel"><h2>Usuarios registrados</h2><div class="table-wrap"><table><thead><tr><th>Nombre</th><th>Correo</th><th>Rol</th><th>Área</th><th>Sede</th><th>Estado</th><th></th></tr></thead><tbody>
+{% for item in users %}<tr><td>{{ item.full_name }}</td><td>{{ item.email }}</td><td>{{ item.role.value }}</td><td>{{ item.department }}</td><td>{{ item.location }}</td>
+<td>{{ "Activo" if item.is_active else "Desactivado" }}</td><td>{% if item.id != user.id %}<form action="/web/users/{{ item.id }}/toggle" method="post"><button class="secondary">{{ "Desactivar" if item.is_active else "Activar" }}</button></form>{% endif %}</td></tr>{% endfor %}
+</tbody></table></div></section></main></body></html>

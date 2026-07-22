@@ -1,0 +1,36 @@
+<!doctype html><html lang="es"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>{{ asset.asset_code }}</title><link rel="stylesheet" href="{{ url_for('static', path='/styles.css') }}"></head>
+<body class="role-{{ user.role.name|lower }}"><header class="hero compact"><div><p class="eyebrow">FICHA DEL ACTIVO</p>
+<h1>{{ asset.asset_code }} — {{ asset.name }}</h1></div><nav><a href="/">Volver</a><a href="/logout">Salir</a></nav></header>
+<main class="container detail-grid"><section class="panel"><h2>Información general</h2><dl>
+<dt>Serie</dt><dd>{{ asset.serial_number }}</dd><dt>Tipo</dt><dd>{{ asset.asset_type.value }}</dd>
+<dt>Marca / modelo</dt><dd>{{ asset.brand }} {{ asset.model }}</dd><dt>Estado</dt><dd>{{ asset.status.value }}</dd>
+<dt>Sede</dt><dd>{{ asset.location }}</dd><dt>Área</dt><dd>{{ asset.department }}</dd>
+<dt>Compra</dt><dd>{{ asset.purchase_date or "Sin registro" }}</dd><dt>Garantía</dt><dd>{{ asset.warranty_end or "Sin registro" }}</dd>
+<dt>Costo</dt><dd>S/ {{ "%.2f"|format(asset.purchase_cost) }}</dd><dt>Notas</dt><dd>{{ asset.notes or "Sin notas" }}</dd>
+{% if asset.retired_reason %}<dt>Motivo de baja</dt><dd>{{ asset.retired_reason }}</dd>{% endif %}</dl></section>
+{% if user.role.value != "Empleado" %}
+<section class="panel"><h2>Editar activo y estado</h2><form action="/web/assets/{{ asset.id }}/edit" method="post">
+<label>Nombre<input name="name" value="{{ asset.name }}" required></label><label>Tipo<select name="asset_type">{% for t in asset_types %}<option value="{{ t.value }}" {% if t == asset.asset_type %}selected{% endif %}>{{ t.value }}</option>{% endfor %}</select></label>
+<label>Marca<input name="brand" value="{{ asset.brand }}" required></label><label>Modelo<input name="model" value="{{ asset.model }}" required></label>
+<label>Estado<select name="status">{% for s in asset_statuses %}<option value="{{ s.value }}" {% if s == asset.status %}selected{% endif %}>{{ s.value }}</option>{% endfor %}</select></label>
+<label>Sede<input name="location" value="{{ asset.location }}" required></label><label>Área<input name="department" value="{{ asset.department }}" required></label>
+<label>Garantía<input name="warranty_end" type="date" value="{{ asset.warranty_end or '' }}"></label>
+<label>Costo<input name="purchase_cost" type="number" step="0.01" min="0" value="{{ asset.purchase_cost }}"></label>
+<label>Notas<textarea name="notes">{{ asset.notes or '' }}</textarea></label><button>Guardar cambios</button></form></section>
+<section class="panel"><h2>Asignación</h2><form action="/web/assets/{{ asset.id }}/assign" method="post">
+<label>Usuario<select name="user_id">{% for employee in users %}<option value="{{ employee.id }}">{{ employee.full_name }} — {{ employee.department }}</option>{% endfor %}</select></label>
+<label>Observación<textarea name="notes"></textarea></label><button>Asignar activo</button></form>
+{% if asset.assigned_user_id %}<form class="top-space" action="/web/assets/{{ asset.id }}/return" method="post"><button class="secondary">Registrar devolución</button></form>{% endif %}</section>
+<section class="panel"><h2>Mantenimiento</h2><form action="/web/assets/{{ asset.id }}/maintenance" method="post">
+<label>Tipo<select name="maintenance_type">{% for m in maintenance_types %}<option value="{{ m.value }}">{{ m.value }}</option>{% endfor %}</select></label>
+<label>Fecha<input name="scheduled_date" type="date" required></label><label>Costo<input name="cost" type="number" min="0" step="0.01"></label>
+<label>Descripción<textarea name="description" required></textarea></label><button>Registrar mantenimiento</button></form></section>
+{% if user.role.value == "Administrador" %}<section class="panel danger-zone"><h2>Zona administrativa</h2>
+<form action="/web/assets/{{ asset.id }}/retire" method="post"><label>Motivo de baja<textarea name="reason" required></textarea></label><button class="warning">Dar de baja</button></form>
+<form class="top-space" action="/web/assets/{{ asset.id }}/delete" method="post" onsubmit="return confirm('¿Eliminar definitivamente este activo?');"><button class="danger">Eliminar definitivamente</button></form></section>{% endif %}
+{% endif %}
+<section class="panel"><h2>Asignaciones</h2>{% for i in assignments %}<article class="timeline"><strong>Usuario ID {{ i.user_id }}</strong><small>{{ i.assigned_at.strftime('%d/%m/%Y %H:%M') }} · {{ i.assigned_by }}</small><p>{{ i.notes or "Sin observaciones" }}</p></article>{% else %}<p class="muted">Sin asignaciones.</p>{% endfor %}</section>
+<section class="panel"><h2>Mantenimientos</h2>{% for i in maintenances %}<article class="timeline"><strong>{{ i.maintenance_type.value }} — {{ i.scheduled_date }}</strong><small>{{ i.technician_name }} · S/ {{ "%.2f"|format(i.cost) }}</small><p>{{ i.description }}</p></article>{% else %}<p class="muted">Sin mantenimientos.</p>{% endfor %}</section>
+<section class="panel full-panel"><h2>Historial de auditoría</h2>{% for i in histories %}<article class="timeline"><strong>{{ i.action }}</strong><small>{{ i.performed_by }} · {{ i.created_at.strftime('%d/%m/%Y %H:%M') }}</small></article>{% else %}<p class="muted">Sin historial.</p>{% endfor %}</section>
+</main></body></html>

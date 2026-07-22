@@ -1,0 +1,11 @@
+<!doctype html><html lang="es"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Inventario TI Pro</title><link rel="stylesheet" href="{{ url_for('static', path='/styles.css') }}"></head>
+<body class="login-body"><main class="login-card"><div class="brand-mark">IT</div>
+<p class="eyebrow">GESTIÓN DE INFRAESTRUCTURA</p><h1>Inventario TI Pro</h1>
+<p class="muted">Activos, asignaciones, mantenimientos y reportes en un solo lugar.</p>
+{% if error %}<div class="error">{{ error }}</div>{% endif %}
+<form method="post" action="/login"><label>Correo<input name="email" type="email" required></label>
+<label>Contraseña<input name="password" type="password" required></label><button>Ingresar</button></form>
+<div class="demo-box"><strong>Usuarios demo</strong><small>Administrador: admin@demo.com / Admin123</small>
+<small>Técnico: tecnico@demo.com / Tecnico123</small><small>Empleado: empleado@demo.com / Empleado123</small></div>
+</main></body></html>
